@@ -1,18 +1,29 @@
+require('dotenv').config();
 var express = require('express')
 var multer  = require('multer')
 var upload = multer({ dest: './uploads/'});
-var app = express()
+var path = require('path')
+var app = express();
+
+// View Engine
+var ejs = require('ejs');
+app.set('view engine', ejs);
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', function(req, res){
-  res.sendFile(__dirname + "/index.html");
+  res.render('index.ejs')
 });
 
-// accept one file where the name of the form field is named photho
-app.post('/index.html', upload.single('test'), function(req, res){
-    console.log(req.file) // form files
-    res.json(req.file.size); 
+// accept one file where the name of the form field is named
+app.post('/upload', upload.single('file'), function(req, res){
+    // Take name and file size and return as json Object
+    let newObj = {};
+    newObj.name = req.file.originalname
+    newObj.size = req.file.size
+    res.json(newObj);
 });
 
-app.listen(3000, function (){
+app.listen(process.env.PORT || 3000, function (){
   console.log("connected on port 3000");
 });
